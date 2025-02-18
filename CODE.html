@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://png.pngtree.com/element_our/png/20181107/pngtree-bee-png-image_233414.jpg">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert CDN -->
+    <title>PC BEE MACTAN CODE</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded shadow-md w-128"> <!-- Increased width here -->
+        <h1 class="text-xl font-bold mb-4 text-center">🐝 PC BEE MACTAN CODE 🐝</h1>
+
+        <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-300" id="result-table">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-300 p-4">Date</th>
+                        <th class="border border-gray-300 p-4">Code</th>
+                        <th id="actions-header" class="border border-gray-300 p-4 hidden">Actions</th> <!-- Initially hidden -->
+                    </tr>
+                </thead>                
+                <tbody id="result-table-body">
+                    <!-- Results will be appended here -->
+                </tbody>
+            </table>
+        </div>
+
+        <button id="add-entry-btn" class="bg-blue-500 text-white p-2 rounded w-full mt-4 hover:bg-blue-600">Add Entry</button>
+
+        <div id="pin-section" class="hidden mt-4">
+            <label for="pin-input" class="block mb-2">Enter PIN to Add Entry:</label>
+            <input type="password" id="pin-input" class="border border-gray-300 p-2 rounded w-full mb-2" placeholder="Hint: Secret Kabalo pa hinuon ka" />
+            <button id="submit-pin-btn" class="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600">Submit PIN</button>
+        </div>
+
+        <div id="form-section" class="hidden mt-4">
+            <label for="code" class="block mb-2">Enter Code:</label>
+            <input type="text" id="code" class="border border-gray-300 p-2 rounded w-full mb-4" placeholder="Enter code" />
+
+            <label for="date" class="block mb-2">Select a Date:</label>
+            <input type="date" id="date" class="border border-gray-300 p-2 rounded w-full mb-4" />
+
+            <button id="add-btn" class="bg-blue-500 text-white p-2 rounded w-full hover:bg-blue-600">Add Entry</button>
+        </div>
+
+        <button id="download-btn" class="bg-green-500 text-white p-2 rounded w-full mt-4 hover:bg-green-600 hidden">Download Data</button>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyASq5Kqx8Lf34-Xcd6BQMfIqAGlhQtVSNY",
+            authDomain: "pc-bee-database.firebaseapp.com",
+            projectId: "pc-bee-database",
+            storageBucket: "pc-bee-database.appspot.com",
+            messagingSenderId: "671705541335",
+            appId: "1:671705541335:web:fc7cd7724249807a251e92",
+            measurementId: "G-Z61VLDR5C1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to fetch entries from Firestore and update the table
+        async function fetchEntries() {
+            const querySnapshot = await getDocs(collection(db, "entries"));
+            const entries = [];
+            querySnapshot.forEach((doc) => {
+                entries.push({ ...doc.data(), id: doc.id });
+            });
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date, newest first
+            updateTable(entries);
+        }
+
+        // Function to format date as "FEB,14 2025"
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options).toUpperCase().replace(',', '');
+        }
+
+        // Function to update the table
+        let isPinValidated = false; // Global flag to track PIN validation
+
+        function updateTable(entries) {
+            const tableBody = document.getElementById('result-table-body');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            const actionsHeader = document.getElementById('actions-header'); // Get the Actions column header
+            const isPinEntered = document.body.dataset.pinVerified === "true"; // Check if PIN was entered
+
+            if (!isPinEntered) {
+                actionsHeader.classList.add('hidden'); // Hide the Actions column header
+            } else {
+                actionsHeader.classList.remove('hidden'); // Show the Actions column header
+            }
+
+            entries.forEach(entry => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td class="border border-gray-300 p-4">${formatDate(entry.date)}</td>
+                    <td class="border border-gray-300 p-4">${entry.code}</td>
+                    <td class="border border-gray-300 p-4 actions-cell ${!isPinEntered ? 'hidden' : ''}">
+                        <button class="bg-yellow-500 text-white p-1 rounded mr-2" onclick="editEntry('${entry.id}')">Edit</button>
+                        <button class="bg-red-500 text-white p-1 rounded" onclick="deleteEntry('${entry.id}')">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+        }
+
+
+
+        // Function to delete an entry
+        async function deleteEntry(entryId) {
+        try {
+            await deleteDoc(doc(db, "entries", entryId));
+            fetchEntries(); // Refresh the table
+            alert('Entry has been deleted.');
+        } catch (error) {
+            console.error('Error deleting entry:', error);
+            alert('Failed to delete entry.');
+        }
+    }
+
+        // Function to edit an entry
+    // Function to edit an entry
+    async function editEntry(entryId) {
+        const newCode = prompt("Enter new code:");
+        const newDate = prompt("Enter new date (YYYY-MM-DD):");
+        if (newCode && newDate) {
+            try {
+                const entryRef = doc(db, "entries", entryId);
+                await updateDoc(entryRef, {
+                    code: newCode,
+                    date: newDate
+                });
+                fetchEntries(); // Refresh the table
+                alert('Entry has been updated.');
+            } catch (error) {
+                console.error('Error updating entry:', error);
+                alert('Failed to update entry.');
+            }
+        }
+    }
+
+        window.deleteEntry = deleteEntry;
+        window.editEntry = editEntry;
+
+        // Fetch and display entries immediately
+        fetchEntries();
+
+        // Show PIN entry section
+        document.getElementById('add-entry-btn').addEventListener('click', function() {
+            document.getElementById('pin-section').classList.remove('hidden');
+        });
+
+        // Validate PIN and enable actions
+        let pinAttempts = 0; // Track failed PIN attempts
+
+        document.getElementById('submit-pin-btn').addEventListener('click', function() {
+            const pinInput = document.getElementById('pin-input').value;
+            const addEntryBtn = document.getElementById('add-entry-btn');
+
+            if (pinInput === 'Weloveyourfeedback') {
+                document.body.dataset.pinVerified = "true"; // Set PIN verification flag
+                document.getElementById('form-section').classList.remove('hidden');
+                document.getElementById('pin-section').classList.add('hidden');
+                addEntryBtn.classList.add('hidden'); // Hide Add Entry button after successful login
+                document.getElementById('download-btn').classList.remove('hidden');
+
+                fetchEntries(); // Refresh table to reveal Actions column
+            } else {
+                pinAttempts++;
+
+                if (pinAttempts >= 3) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'You\'re not authorized kay dili ka iyaha',
+                        text: 'AYAW PUGSA MASAKITAN RAKA!',
+                        confirmButtonText: 'OK'
+                    });
+
+                    addEntryBtn.classList.add('hidden'); // Hide Add Entry button permanently
+                    document.getElementById('submit-pin-btn').disabled = true; // Disable PIN button
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid PIN',
+                        text: `Attempt ${pinAttempts} of 3. Please try again.`,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+
+
+
+        // Add new entry to Firestore
+        document.getElementById('add-btn').addEventListener('click', async function() {
+        const codeValue = document.getElementById('code').value;
+        const dateInput = document.getElementById('date').value;
+
+        if (codeValue && dateInput) {
+            try {
+                await addDoc(collection(db, "entries"), {
+                    code: codeValue,
+                    date: dateInput
+                });
+
+                // Show success message using SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Entry Added!',
+                    text: 'Your entry has been successfully added.',
+                    confirmButtonText: 'OK'
+                });
+
+                document.getElementById('code').value = '';
+                document.getElementById('date').value = '';
+                fetchEntries(); // Refresh the table
+            } catch (error) {
+                console.error('Error adding entry:', error);
+
+                // Show error message using SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Failed to add entry. Please try again.',
+                    confirmButtonText: 'OK'
+                });
+            }
+        } else {
+            // Show warning if fields are empty
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Information',
+                text: 'Please enter a code and select a date.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+
+
+        // Download all entries as a text file
+        document.getElementById('download-btn').addEventListener('click', function() {
+            const entries = [];
+            const tableRows = document.querySelectorAll('#result-table-body tr');
+            tableRows.forEach(row => {
+                const cols = row.querySelectorAll('td');
+                const date = cols[0].innerText;
+                const code = cols[1].innerText;
+                entries.push(`${date}\t${code}`);
+            });
+            const data = entries.join('\n');
+            const blob = new Blob([data], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Data.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
