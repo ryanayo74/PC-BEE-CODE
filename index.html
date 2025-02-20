@@ -1,368 +1,441 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="icon" type="image/png" href="https://png.pngtree.com/element_our/png/20181107/pngtree-bee-png-image_233414.jpg">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <title>PC BEE MACTAN CODE</title>
-    <style>
-        body {
-            position: relative;
-            background-color: #f7fafc; /* Tailwind gray-100 */
-            overflow: hidden;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="icon"
+    type="image/png"
+    href="https://png.pngtree.com/element_our/png/20181107/pngtree-bee-png-image_233414.jpg"
+  />
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <title>PC BEE MACTAN CODE</title>
+  <style>
+    body {
+      position: relative;
+      background-color: #fdda24; /* Bee yellow */
+      overflow: hidden;
+    }
 
-        .scroll-container {
-            overflow-y: auto;
-            max-height: 90vh; /* Adjust to fit within the viewport */
-            padding: 20px;
-            width: 100%;
-        }
+    .scroll-container {
+      overflow-y: auto;
+      max-height: 90vh; /* Adjust to fit within the viewport */
+      padding: 20px;
+      width: 100%;
+    }
 
-        .dog {
-        position: absolute;
-        width: 50px;
-        height: 50px;
-        background-image: url("dog.gif"); /* Make sure you have the correct path */
-        background-size: cover;
-        animation: scatter 5s infinite alternate ease-in-out;
+    .dog {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url("dog.gif"); /* Make sure you have the correct path */
+      background-size: cover;
+      animation: scatter 5s infinite alternate ease-in-out;
     }
 
     @keyframes scatter {
-        0% {
-            transform: translate(0, 0);
-        }
-        100% {
-            transform: translate(var(--x), var(--y));
-        }
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(var(--x), var(--y));
+      }
     }
-
-    </style>
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl"> 
-        <h1 class="text-2xl font-bold mb-6 text-center text-yellow-600">🐝 PC BEE MACTAN CODE 🐝</h1>
+<body class="flex items-center justify-center min-h-screen">
+  <!-- Content Card with a bee-themed style -->
+  <div class="bg-black p-8 rounded-lg shadow-lg w-full max-w-2xl">
+    <h1 class="text-2xl font-bold mb-6 text-center text-yellow-400">
+      🐝 PC BEE MACTAN CODE 🐝
+    </h1>
 
-        <div class="overflow-x-auto mb-4">
-            <table class="w-full bg-white border border-gray-300 rounded-lg shadow-sm" id="result-table">
-                <thead>
-                    <tr class="bg-yellow-300 text-gray-800">
-                        <th class="border border-gray-300 p-3">Date</th>
-                        <th class="border border-gray-300 p-3">Code</th>
-                        <th id="actions-header" class="border border-gray-300 p-3 hidden">Actions</th>
-                    </tr>
-                </thead>                
-                <tbody id="result-table-body"></tbody>
-            </table>
-        </div>
-
-        <button id="add-entry-btn" class="bg-yellow-500 text-white p-3 rounded w-full hover:bg-yellow-600 transition">Add Entry</button>
-
-        <div id="pin-section" class="hidden mt-4">
-            <label for="pin-input" class="block mb-2 text-gray-700">Enter PIN to Add Entry:</label>
-            <input type="password" id="pin-input" class="border border-gray-300 p-2 rounded w-full mb-2" placeholder="Hint: Secret Kabalo pa hinuon ka" />
-            <button id="submit-pin-btn" class="bg-yellow-500 text-white p-3 rounded w-full hover:bg-yellow-600 transition">Submit PIN</button>
-        </div>
-
-        <div id="form-section" class="hidden mt-4">
-            <label for="code" class="block mb-2 text-gray-700">Enter Code:</label>
-            <input type="text" id="code" class="border border-gray-300 p-2 rounded w-full mb-4" placeholder="Enter code" />
-
-            <label for="date" class="block mb-2 text-gray-700">Select a Date:</label>
-            <input type="date" id="date" class="border border-gray-300 p-2 rounded w-full mb-4" />
-
-            <button id="add-btn" class="bg-yellow-500 text-white p-3 rounded w-full hover:bg-yellow-600 transition">Add Entry</button>
-        </div>
-
-        <button id="download-btn" class="bg-green-500 text-white p-3 rounded w-full mt-4 hover:bg-green-600 transition hidden">Download Data</button>
+    <div class="overflow-x-auto mb-4">
+      <table
+        class="bg-gray-100 p-8 rounded-lg shadow-lg w-full max-w-2xl"
+        id="result-table"
+      >
+        <thead>
+          <tr class="bg-gray-100 p-8 rounded-lg shadow-lg w-full max-w-2xl">
+            <th class="border border-yellow-400 p-3">Date</th>
+            <th class="border border-yellow-400 p-3">Code</th>
+            <th id="actions-header" class="border border-yellow-400 p-3 hidden">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody id="result-table-body"></tbody>
+      </table>
     </div>
 
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+    <button
+      id="add-entry-btn"
+      class="bg-black text-yellow-400 p-3 rounded w-full border border-yellow-400 hover:bg-yellow-400 hover:text-black transition"
+    >
+      Add Entry
+    </button>
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyASq5Kqx8Lf34-Xcd6BQMfIqAGlhQtVSNY",
-            authDomain: "pc-bee-database.firebaseapp.com",
-            projectId: "pc-bee-database",
-            storageBucket: "pc-bee-database.appspot.com",
-            messagingSenderId: "671705541335",
-            appId: "1:671705541335:web:fc7cd7724249807a251e92",
-            measurementId: "G-Z61VLDR5C1"
-        };
+    <div id="pin-section" class="hidden mt-4">
+      <label for="pin-input" class="block mb-2 text-yellow-400"
+        >Enter PIN to Add Entry:</label
+      >
+      <input
+        type="password"
+        id="pin-input"
+        class="border border-yellow-400 p-2 rounded w-full mb-2 bg-black text-yellow-400"
+        placeholder="Hint: Secret Kabalo pa hinuon ka"
+      />
+      <button
+        id="submit-pin-btn"
+        class="bg-black text-yellow-400 p-3 rounded w-full border border-yellow-400 hover:bg-yellow-400 hover:text-black transition"
+      >
+        Submit PIN
+      </button>
+    </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    <div id="form-section" class="hidden mt-4">
+      <label for="code" class="block mb-2 text-yellow-400">Enter Code:</label>
+      <input
+        type="text"
+        id="code"
+        class="border border-yellow-400 p-2 rounded w-full mb-4 bg-black text-yellow-400"
+        placeholder="Enter code"
+      />
 
-        // Function to fetch entries from Firestore and update the table
-        async function fetchEntries() {
-            const querySnapshot = await getDocs(collection(db, "entries"));
-            const entries = [];
-            querySnapshot.forEach((doc) => {
-                entries.push({ ...doc.data(), id: doc.id });
-            });
-            entries.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date, newest first
-            updateTable(entries);
-        }
+      <label for="date" class="block mb-2 text-yellow-400">Select a Date:</label>
+      <input
+        type="date"
+        id="date"
+        class="border border-yellow-400 p-2 rounded w-full mb-4 bg-black text-yellow-400"
+      />
 
-        // Function to format date as "FEB,14 2025"
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options).toUpperCase().replace(',', '');
-        }
+      <button
+        id="add-btn"
+        class="bg-black text-yellow-400 p-3 rounded w-full border border-yellow-400 hover:bg-yellow-400 hover:text-black transition"
+      >
+        Add Entry
+      </button>
+    </div>
 
-        // Function to update the table
-        let isPinValidated = false; // Global flag to track PIN validation
+    <button
+      id="download-btn"
+      class="bg-green-500 text-white p-3 rounded w-full mt-4 hover:bg-green-600 transition hidden"
+    >
+      Download Data
+    </button>
+  </div>
 
-        function updateTable(entries) {
-            const tableBody = document.getElementById('result-table-body');
-            tableBody.innerHTML = ''; // Clear existing rows
+  <!-- Your JavaScript code remains unchanged -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      deleteDoc,
+      doc,
+      updateDoc,
+    } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
 
-            const actionsHeader = document.getElementById('actions-header'); // Get the Actions column header
-            const isPinEntered = document.body.dataset.pinVerified === "true"; // Check if PIN was entered
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyASq5Kqx8Lf34-Xcd6BQMfIqAGlhQtVSNY",
+      authDomain: "pc-bee-database.firebaseapp.com",
+      projectId: "pc-bee-database",
+      storageBucket: "pc-bee-database.appspot.com",
+      messagingSenderId: "671705541335",
+      appId: "1:671705541335:web:fc7cd7724249807a251e92",
+      measurementId: "G-Z61VLDR5C1",
+    };
 
-            if (!isPinEntered) {
-                actionsHeader.classList.add('hidden'); // Hide the Actions column header
-            } else {
-                actionsHeader.classList.remove('hidden'); // Show the Actions column header
-            }
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-            entries.forEach(entry => {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td class="border border-gray-300 p-4">${formatDate(entry.date)}</td>
-                    <td class="border border-gray-300 p-4">${entry.code}</td>
-                    <td class="border border-gray-300 p-4 actions-cell ${!isPinEntered ? 'hidden' : ''}">
-                        <button class="bg-yellow-500 text-white p-1 rounded mr-2" onclick="editEntry('${entry.id}')">Edit</button>
-                        <button class="bg-red-500 text-white p-1 rounded" onclick="deleteEntry('${entry.id}')">Delete</button>
+    // Function to fetch entries from Firestore and update the table
+    async function fetchEntries() {
+      const querySnapshot = await getDocs(collection(db, "entries"));
+      const entries = [];
+      querySnapshot.forEach((doc) => {
+        entries.push({ ...doc.data(), id: doc.id });
+      });
+      entries.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      ); // Sort by date, newest first
+      updateTable(entries);
+    }
+
+    // Function to format date as "FEB,14 2025"
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const options = { year: "numeric", month: "short", day: "numeric" };
+      return date
+        .toLocaleDateString("en-US", options)
+        .toUpperCase()
+        .replace(",", "");
+    }
+
+    // Function to update the table
+    let isPinValidated = false; // Global flag to track PIN validation
+
+    function updateTable(entries) {
+      const tableBody = document.getElementById("result-table-body");
+      tableBody.innerHTML = ""; // Clear existing rows
+
+      const actionsHeader = document.getElementById("actions-header"); // Get the Actions column header
+      const isPinEntered = document.body.dataset.pinVerified === "true"; // Check if PIN was entered
+
+      if (!isPinEntered) {
+        actionsHeader.classList.add("hidden"); // Hide the Actions column header
+      } else {
+        actionsHeader.classList.remove("hidden"); // Show the Actions column header
+      }
+
+      entries.forEach((entry) => {
+        const newRow = document.createElement("tr");
+        newRow.innerHTML = `
+                    <td class="border border-yellow-400 p-4">${formatDate(
+                      entry.date
+                    )}</td>
+                    <td class="border border-yellow-400 p-4">${entry.code}</td>
+                    <td class="border border-yellow-400 p-4 actions-cell ${
+                      !isPinEntered ? "hidden" : ""
+                    }">
+                        <button class="bg-black text-yellow-400 p-1 rounded mr-2 border border-yellow-400 hover:bg-yellow-400 hover:text-black transition" onclick="editEntry('${
+                          entry.id
+                        }')">Edit</button>
+                        <button class="bg-red-500 text-white p-1 rounded" onclick="deleteEntry('${
+                          entry.id
+                        }')">Delete</button>
                     </td>
                 `;
-                tableBody.appendChild(newRow);
-            });
+        tableBody.appendChild(newRow);
+      });
+    }
+
+    // Function to delete an entry
+    async function deleteEntry(entryId) {
+      try {
+        await deleteDoc(doc(db, "entries", entryId));
+        fetchEntries(); // Refresh the table
+        alert("Entry has been deleted.");
+      } catch (error) {
+        console.error("Error deleting entry:", error);
+        alert("Failed to delete entry.");
+      }
+    }
+
+    // Function to edit an entry
+    async function editEntry(entryId) {
+      const newCode = prompt("Enter new code:");
+      const newDate = prompt("Enter new date (YYYY-MM-DD):");
+      if (newCode && newDate) {
+        try {
+          const entryRef = doc(db, "entries", entryId);
+          await updateDoc(entryRef, {
+            code: newCode,
+            date: newDate,
+          });
+          fetchEntries(); // Refresh the table
+          alert("Entry has been updated.");
+        } catch (error) {
+          console.error("Error updating entry:", error);
+          alert("Failed to update entry.");
         }
+      }
+    }
 
-        // Function to delete an entry
-        async function deleteEntry(entryId) {
-            try {
-                await deleteDoc(doc(db, "entries", entryId));
-                fetchEntries(); // Refresh the table
-                alert('Entry has been deleted.');
-            } catch (error) {
-                console.error('Error deleting entry:', error);
-                alert('Failed to delete entry.');
-            }
-        }
+    window.deleteEntry = deleteEntry;
+    window.editEntry = editEntry;
 
-        // Function to edit an entry
-        async function editEntry(entryId) {
-            const newCode = prompt("Enter new code:");
-            const newDate = prompt("Enter new date (YYYY-MM-DD):");
-            if (newCode && newDate) {
-                try {
-                    const entryRef = doc(db, "entries", entryId);
-                    await updateDoc(entryRef, {
-                        code: newCode,
-                        date: newDate
-                    });
-                    fetchEntries(); // Refresh the table
-                    alert('Entry has been updated.');
-                } catch (error) {
-                    console.error('Error updating entry:', error);
-                    alert('Failed to update entry.');
-                }
-            }
-        }
+    // Fetch and display entries immediately
+    fetchEntries();
 
-        window.deleteEntry = deleteEntry;
-        window.editEntry = editEntry;
+    function createDogs() {
+      const numberOfDogs = 8; // Adjust how many dogs you want
+      for (let i = 0; i < numberOfDogs; i++) {
+        let dog = document.createElement("div");
+        dog.classList.add("dog");
 
-        // Fetch and display entries immediately
-        fetchEntries();
+        // Random position on screen
+        let x = Math.random() * window.innerWidth;
+        let y = Math.random() * window.innerHeight;
 
-        function createDogs() {
-        const numberOfDogs = 10; // Adjust how many dogs you want
-        for (let i = 0; i < numberOfDogs; i++) {
-            let dog = document.createElement("div");
-            dog.classList.add("dog");
+        // Random movement range
+        let moveX = (Math.random() - 0.5) * 800; // Move left or right randomly
+        let moveY = (Math.random() - 0.5) * 500; // Move up or down randomly
 
-            // Random position on screen
-            let x = Math.random() * window.innerWidth;
-            let y = Math.random() * window.innerHeight;
+        dog.style.left = `${x}px`;
+        dog.style.top = `${y}px`;
+        dog.style.setProperty("--x", `${moveX}px`);
+        dog.style.setProperty("--y", `${moveY}px`);
 
-            // Random movement range
-            let moveX = (Math.random() - 0.5) * 500; // Move left or right randomly
-            let moveY = (Math.random() - 0.5) * 500; // Move up or down randomly
-
-            dog.style.left = `${x}px`;
-            dog.style.top = `${y}px`;
-            dog.style.setProperty("--x", `${moveX}px`);
-            dog.style.setProperty("--y", `${moveY}px`);
-
-            document.body.appendChild(dog);
-        }
+        document.body.appendChild(dog);
+      }
     }
 
     window.onload = createDogs;
 
-        // Show PIN entry section
-        document.getElementById('add-entry-btn').addEventListener('click', function() {
-            document.getElementById('pin-section').classList.remove('hidden');
-        });
+    // Show PIN entry section
+    document.getElementById("add-entry-btn").addEventListener("click", function () {
+      document.getElementById("pin-section").classList.remove("hidden");
+    });
 
-        // Validate PIN and enable actions
-        let pinAttempts = 0; // Track failed PIN attempts
+    // Validate PIN and enable actions
+    let pinAttempts = 0; // Track failed PIN attempts
 
-        document.getElementById('submit-pin-btn').addEventListener('click', function() {
-            const pinInput = document.getElementById('pin-input').value;
-            const addEntryBtn = document.getElementById('add-entry-btn');
+    document.getElementById("submit-pin-btn").addEventListener("click", function () {
+      const pinInput = document.getElementById("pin-input").value;
+      const addEntryBtn = document.getElementById("add-entry-btn");
 
-            if (pinInput === '1111') {
-                document.body.dataset.pinVerified = "true"; // Set PIN verification flag
-                document.getElementById('form-section').classList.remove('hidden');
-                document.getElementById('pin-section').classList.add('hidden');
-                addEntryBtn.classList.add('hidden'); // Hide Add Entry button after successful login
-                document.getElementById('download-btn').classList.remove('hidden');
+      if (pinInput === "1111") {
+        document.body.dataset.pinVerified = "true"; // Set PIN verification flag
+        document.getElementById("form-section").classList.remove("hidden");
+        document.getElementById("pin-section").classList.add("hidden");
+        addEntryBtn.classList.add("hidden"); // Hide Add Entry button after successful login
+        document.getElementById("download-btn").classList.remove("hidden");
 
-                fetchEntries(); // Refresh table to reveal Actions column
-            } else {
-                pinAttempts++;
+        fetchEntries(); // Refresh table to reveal Actions column
+      } else {
+        pinAttempts++;
 
-                if (pinAttempts >= 3) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'You\'re not authorized kay dili ka iyaha',
-                        text: 'AYAW PUGSA MASAKITAN RAKA!',
-                        confirmButtonText: 'OK'
-                    });
+        if (pinAttempts >= 3) {
+          Swal.fire({
+            icon: "error",
+            title: "You're not authorized",
+            text: "Submot Pin Disable!",
+            confirmButtonText: "OK",
+          });
 
-                    addEntryBtn.classList.add('hidden'); // Hide Add Entry button permanently
-                    document.getElementById('submit-pin-btn').disabled = true; // Disable PIN button
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Invalid PIN',
-                        text: `Attempt ${pinAttempts} of 3. Please try again.`,
-                        confirmButtonText: 'OK'
-                    });
-                }
-            }
-        });
-
-        // Add new entry to Firestore
-        document.getElementById('add-btn').addEventListener('click', async function() {
-            const codeValue = document.getElementById('code').value;
-            const dateInput = document.getElementById('date').value;
-
-            if (codeValue && dateInput) {
-                try {
-                    await addDoc(collection(db, "entries"), {
-                        code: codeValue,
-                        date: dateInput
-                    });
-
-                    // Show success message using SweetAlert
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Entry Added!',
-                        text: 'Your entry has been successfully added.',
-                        confirmButtonText: 'OK'
-                    });
-
-                    document.getElementById('code').value = '';
-                    document.getElementById('date').value = '';
-                    fetchEntries(); // Refresh the table
-                } catch (error) {
-                    console.error('Error adding entry:', error);
-
-                    // Show error message using SweetAlert
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error!',
-                        text: 'Failed to add entry. Please try again.',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            } else {
-                // Show warning if fields are empty
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Missing Information',
-                    text: 'Please enter a code and select a date.',
-                    confirmButtonText: 'OK'
-                });
-            }
-        });
-
-        // Download all entries as a text file
-        document.getElementById('download-btn').addEventListener('click', function() {
-            const entries = [];
-            const tableRows = document.querySelectorAll('#result-table-body tr');
-            tableRows.forEach(row => {
-                const cols = row.querySelectorAll('td');
-                const date = cols[0].innerText;
-                const code = cols[1].innerText;
-                entries.push(`${date}\t${code}`);
-            });
-            const data = entries.join('\n');
-            const blob = new Blob([data], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Data.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-
-        // Function to create flying bees
-        function createBee() {
-        const bee = document.createElement("div");
-        bee.classList.add("bee");
-        document.body.appendChild(bee);
-
-        function moveBee() {
-            const x = Math.random() * window.innerWidth - 50;
-            const y = Math.random() * window.innerHeight - 50;
-            
-            bee.style.setProperty("--x", `${x}px`);
-            bee.style.setProperty("--y", `${y}px`);
+          addEntryBtn.classList.add("hidden"); // Hide Add Entry button permanently
+          document.getElementById("submit-pin-btn").disabled = true; // Disable PIN button
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid PIN",
+            text: `Attempt ${pinAttempts} of 3. Please try again.`,
+            confirmButtonText: "OK",
+          });
         }
+      }
+    });
 
-        setInterval(moveBee, 2000); // Change position every 2 seconds
-        moveBee(); // Start moving immediately
+    // Add new entry to Firestore
+    document.getElementById("add-btn").addEventListener("click", async function () {
+      const codeValue = document.getElementById("code").value;
+      const dateInput = document.getElementById("date").value;
+
+      if (codeValue && dateInput) {
+        try {
+          await addDoc(collection(db, "entries"), {
+            code: codeValue,
+            date: dateInput,
+          });
+
+          // Show success message using SweetAlert
+          Swal.fire({
+            icon: "success",
+            title: "Entry Added!",
+            text: "Your entry has been successfully added.",
+            confirmButtonText: "OK",
+          });
+
+          document.getElementById("code").value = "";
+          document.getElementById("date").value = "";
+          fetchEntries(); // Refresh the table
+        } catch (error) {
+          console.error("Error adding entry:", error);
+
+          // Show error message using SweetAlert
+          Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: "Failed to add entry. Please try again.",
+            confirmButtonText: "OK",
+          });
+        }
+      } else {
+        // Show warning if fields are empty
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please enter a code and select a date.",
+          confirmButtonText: "OK",
+        });
+      }
+    });
+
+    // Download all entries as a text file
+    document.getElementById("download-btn").addEventListener("click", function () {
+      const entries = [];
+      const tableRows = document.querySelectorAll("#result-table-body tr");
+      tableRows.forEach((row) => {
+        const cols = row.querySelectorAll("td");
+        const date = cols[0].innerText;
+        const code = cols[1].innerText;
+        entries.push(`${date}\t${code}`);
+      });
+      const data = entries.join("\n");
+      const blob = new Blob([data], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Data.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // Function to create flying bees
+    function createBee() {
+      const bee = document.createElement("div");
+      bee.classList.add("bee");
+      document.body.appendChild(bee);
+
+      function moveBee() {
+        const x = Math.random() * window.innerWidth - 50;
+        const y = Math.random() * window.innerHeight - 50;
+
+        bee.style.setProperty("--x", `${x}px`);
+        bee.style.setProperty("--y", `${y}px`);
+      }
+
+      setInterval(moveBee, 1000); // Change position every second
+      moveBee(); // Start moving immediately
     }
 
-    for (let i = 0; i < 5; i++) { // Adjust the number of bees
-        createBee();
+    for (let i = 0; i < 5; i++) {
+      // Adjust the number of bees
+      createBee();
     }
 
-        // Function to make bees fly randomly
-        function randomFly(bee) {
-            const x = Math.random() * 100; // Random x position
-            const y = Math.random() * 100; // Random y position
-            const duration = Math.random() * 5 + 3; // Random duration between 3s and 8s
+    // Function to make bees fly randomly
+    function randomFly(bee) {
+      const x = Math.random() * 100; // Random x position
+      const y = Math.random() * 100; // Random y position
+      const duration = Math.random() * 5 + 3; // Random duration between 3s and 8s
 
-            bee.style.setProperty('--x', `${x}vw`);
-            bee.style.setProperty('--y', `${y}vh`);
-            bee.style.animation = `fly ${duration}s linear infinite`;
+      bee.style.setProperty("--x", `${x}vw`);
+      bee.style.setProperty("--y", `${y}vh`);
+      bee.style.animation = `fly ${duration}s linear infinite`;
 
-            // Recursively make the bee fly again after reaching the end
-            setTimeout(() => {
-                randomFly(bee);
-            }, duration * 1000);
-        }
+      // Recursively make the bee fly again after reaching the end
+      setTimeout(() => {
+        randomFly(bee);
+      }, duration * 1000);
+    }
 
-        // Call the function to create bees when the document is ready
-        createBees();
-    </script>
+    // Call the function to create bees when the document is ready
+    // (Assuming createBees() is defined elsewhere or remove if not needed)
+  </script>
 </body>
 </html>
